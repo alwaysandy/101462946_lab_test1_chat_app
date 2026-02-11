@@ -7,6 +7,7 @@ const iosocket = require('socket.io');
 const UserModel = require("./models/UserModel");
 const UserRouter = require("./routes/UserRoutes");
 const ChatRouter = require("./routes/ChatRoutes");
+const ChatModel = require("./models/ChatModel");
 
 const app = express();
 
@@ -36,10 +37,10 @@ const server = app.listen(3001, () => {
 
 const io = iosocket(server);
 const users = []
-const usernames = [];
+const usernames = {};
 UserModel.find({}).select('username').then((users) => {
     users.map((user) => {
-        usernames.push(user.username);
+        usernames[user.username] = null;
     });
 });
 
@@ -48,7 +49,11 @@ io.on('connection', (socket) => {
         users.push(socket.id);
     }
 
-    io.emit('all-users', usernames);
+    io.emit('all-users', Object.keys(usernames));
+
+    socket.on('join', (username) => {
+        usernames[username] = socket.id;
+    })
 
     socket.on('join-group', (group) => {
         console.log("Joining" + group);
@@ -60,8 +65,21 @@ io.on('connection', (socket) => {
         socket.leave(group);
     })
 
+    socket.on('group-message-from-client', async (data) => {
+        io.to(data.group).emit('group-message-from-server', data);
+        const toPersist = new ChatModel(data);
+        await toPersist.save(toPersist);
+    });
+
     socket.on('disconnect', () => {
         const index = users.indexOf(socket.id);
+        for (username in usernames) {
+            if (usernames[username] === socket.id) {
+                usernames[username] = null;
+                break;
+            }
+        }
+
         if (index !== -1) {
             users.splice(index, 1);
         }

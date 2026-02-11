@@ -13,7 +13,6 @@ const messageInfo = {
     recipient: null
 }
 
-
 clientIO.on('all-users', (data) => {
     console.log(data);
     const $container = $('#user-list');
@@ -31,6 +30,10 @@ clientIO.on('all-users', (data) => {
             .appendTo($container);
     });
 });
+
+clientIO.on('group-message', (data) => {
+    addMessage(data.message, data.sender);
+})
 
 const joinGroup = (group) => {
     if (messageInfo.group == group) {
@@ -91,13 +94,31 @@ const fillChatBox = (messages) => {
     })
 }
 
-const addMessage = (message) => {
+const addMessage = (message, sender) => {
     const chatBox = $("#chat-box");
     $('<p>')
         .addClass('p-2 bg-light rounded')
-        .text(message.message + " Sent by: " + message.sender)
+        .text(message + " Sent by: " + sender)
         .appendTo(chatBox);
 }
+
+$("#send-message").click(() => {
+    const messageBox = $("#message");
+    const message = messageBox.val();
+    messageBox.val("");
+    if (message) {
+        const payload = {
+            sender: messageInfo.username,
+            message: message,
+            group: messageInfo.group
+        }
+        clientIO.emit('group-message-from-client', payload);
+    }
+});
+
+clientIO.on('group-message-from-server', (data) => {
+    addMessage(data.message, data.sender);
+})
 
 const logout = () => {
     localStorage.clear();
