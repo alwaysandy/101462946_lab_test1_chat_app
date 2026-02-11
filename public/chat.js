@@ -46,8 +46,15 @@ const joinGroup = (group) => {
     messageInfo["group"] = group;
 
     $("#sending-to").text("Group: " + group);
-    // Clear chat
-    // Get chat messages
+    $.get(`/group-messages/${messageInfo.group}`)
+        .done(function(data) {
+            fillChatBox(data);
+            console.log("Conversation history:", data);
+            // Logic to render messages to the UI goes here
+        })
+        .fail(function(error) {
+            console.error("Error fetching messages:", error.responseJSON);
+        });
 }
 
 const toRecipient = (recipient) => {
@@ -62,7 +69,7 @@ const toRecipient = (recipient) => {
     messageInfo.group = null;
     messageInfo.recipient = recipient;
     $('#sending-to').text("Recipient: " + recipient);
-    $.get(`/messages/${messageInfo.username}/${messageInfo.recipient}`)
+    $.get(`/direct-messages/${messageInfo.username}/${messageInfo.recipient}`)
         .done(function(data) {
             console.log("Conversation history:", data);
             // Logic to render messages to the UI goes here
@@ -70,6 +77,26 @@ const toRecipient = (recipient) => {
         .fail(function(error) {
             console.error("Error fetching messages:", error.responseJSON);
         });
+}
+
+const fillChatBox = (messages) => {
+    const chatBox = $("#chat-box");
+    chatBox.empty();
+    messages.forEach(function(message) {
+        // "<p class=\"p-2 bg-light rounded\">Hey, how's the project going? <br>Sent by: Andy</p>"
+        $('<p>')
+            .addClass('p-2 bg-light rounded')
+            .text(message.message + " Sent by: " + message.sender)
+            .appendTo(chatBox);
+    })
+}
+
+const addMessage = (message) => {
+    const chatBox = $("#chat-box");
+    $('<p>')
+        .addClass('p-2 bg-light rounded')
+        .text(message.message + " Sent by: " + message.sender)
+        .appendTo(chatBox);
 }
 
 const logout = () => {

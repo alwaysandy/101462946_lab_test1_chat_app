@@ -2,7 +2,7 @@ const ChatModel = require("../models/ChatModel");
 const express = require('express');
 const ChatRoutes = express.Router();
 
-ChatRoutes.get('/messages/:sender/:recipient', async (req, res) => {
+ChatRoutes.get('/direct-messages/:sender/:recipient', async (req, res) => {
     try {
         const {sender, recipient} = req.params;
         const messages = await ChatModel.find({sender, recipient}).sort({createdAt: 1});
@@ -12,7 +12,7 @@ ChatRoutes.get('/messages/:sender/:recipient', async (req, res) => {
     }
 });
 
-ChatRoutes.get('/messages/:group', async (req, res) => {
+ChatRoutes.get('/group-messages/:group', async (req, res) => {
     try {
         const { group } = req.params;
         const messages = await ChatModel.find({group: group}).sort({createdAt: 1});
