@@ -4,6 +4,7 @@ const UserRoutes = express.Router();
 
 UserRoutes.post('/signup', async (req, res) => {
     const user = new userModel(req.body);
+    console.log(user);
     try {
         const newUser = await user.save();
         return res.status(201).send({
@@ -18,8 +19,17 @@ UserRoutes.post('/signup', async (req, res) => {
 });
 
 UserRoutes.post('/login', async (req, res) => {
+    console.log(req.body);
+    console.log(req.body.username);
     try {
         const user = await userModel.findOne({username: req.body.username});
+        if (!user) {
+            return res.status(401).send({
+                status: false,
+                message: "Invalid username or password"
+            });
+        }
+
         const isMatch = await user.comparePassword(req.body.password);
         if (!isMatch) {
             return res.status(401).send({
