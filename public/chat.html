@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="chat.js" defer></script>
+    <title>Login</title>
+
+    <style>
+        /* Custom 20% / 80% split */
+        .col-20 { width: 20%; }
+        .col-80 { width: 80%; }
+
+        /* Ensure the chat window fills the screen height */
+        .chat-container { height: 90vh; }
+        .chat-box { overflow-y: auto; flex-grow: 1; }
+    </style>
+</head>
+<body>
+<div class="container-fluid mt-3">
+    <div class="row chat-container border rounded bg-white shadow-sm overflow-hidden">
+
+        <div class="col-20 border-end p-3 d-flex flex-column bg-light">
+            <h5 class="mb-3">Groups</h5>
+            <div class="d-grid gap-2">
+                <button id="General" onclick="joinGroup(this.id)" class="btn btn-primary text-start"># General</button>
+                <button id="Projects" onclick="joinGroup(this.id)" class="btn btn-primary text-start"># Projects</button>
+            </div>
+
+            <h5 class="mt-5 mb-3">Users</h5>
+            <div id="user-list" class="d-grid gap-2">
+            </div>
+        </div>
+
+        <div class="col-80 d-flex flex-column p-0">
+            <div class="p-3 border-bottom bg-white">
+                <h3 id="sending-to">Group: General</h3>
+            </div>
+
+            <div id="chat-box" class="chat-box p-3">
+                <div class="mb-3">
+                    <p class="p-2 bg-light rounded">Hey, how's the project going? <br>Sent by: Andy</p>
+                </div>
+            </div>
+
+            <div class="p-3 border-top bg-white">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Type a message..." aria-label="Recipient's username">
+                    <button class="btn btn-primary" type="button">Send</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

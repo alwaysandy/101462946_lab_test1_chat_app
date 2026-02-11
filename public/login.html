@@ -50,6 +50,7 @@
         });
 
         if (res.status === 201) {
+            localStorage.setItem("username", body.username);
             window.location.href = "/chat.html";
         } else {
             alert("Login failed");
