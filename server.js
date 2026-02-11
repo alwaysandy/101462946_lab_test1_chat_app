@@ -56,12 +56,10 @@ io.on('connection', (socket) => {
     })
 
     socket.on('join-group', (group) => {
-        console.log("Joining" + group);
         socket.join(group);
     })
 
     socket.on('leave-group', (group) => {
-        console.log("Leaving" + group);
         socket.leave(group);
     })
 
@@ -70,6 +68,17 @@ io.on('connection', (socket) => {
         const toPersist = new ChatModel(data);
         await toPersist.save(toPersist);
     });
+
+    socket.on('direct-message-from-client', async (data) => {
+        console.log(data);
+        if (usernames[data.recipient] !== null) {
+            const recipient = usernames[data.recipient];
+            io.to(recipient).emit('direct-message-from-server', data);
+        }
+        io.to(socket.id).emit('direct-message-from-server', data);
+        const toPersist = new ChatModel(data);
+        await toPersist.save(toPersist);
+    })
 
     socket.on('disconnect', () => {
         const index = users.indexOf(socket.id);

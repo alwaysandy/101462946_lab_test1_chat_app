@@ -14,13 +14,24 @@
     <title>Login</title>
 
     <style>
-        /* Custom 20% / 80% split */
         .col-20 { width: 20%; }
         .col-80 { width: 80%; }
 
-        /* Ensure the chat window fills the screen height */
-        .chat-container { height: 90vh; }
-        .chat-box { overflow-y: auto; flex-grow: 1; }
+        .chat-container {
+            height: 90vh;
+            display: flex;
+        }
+
+        .col-80 {
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* Fill the 90vh */
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>

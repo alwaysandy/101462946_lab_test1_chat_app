@@ -52,7 +52,6 @@ const joinGroup = (group) => {
     $.get(`/group-messages/${messageInfo.group}`)
         .done(function(data) {
             fillChatBox(data);
-            console.log("Conversation history:", data);
             // Logic to render messages to the UI goes here
         })
         .fail(function(error) {
@@ -72,9 +71,10 @@ const toRecipient = (recipient) => {
     messageInfo.group = null;
     messageInfo.recipient = recipient;
     $('#sending-to').text("Recipient: " + recipient);
+
     $.get(`/direct-messages/${messageInfo.username}/${messageInfo.recipient}`)
         .done(function(data) {
-            console.log("Conversation history:", data);
+            fillChatBox(data);
             // Logic to render messages to the UI goes here
         })
         .fail(function(error) {
@@ -110,13 +110,23 @@ $("#send-message").click(() => {
         const payload = {
             sender: messageInfo.username,
             message: message,
-            group: messageInfo.group
+            group: messageInfo.group,
+            recipient: messageInfo.recipient
         }
-        clientIO.emit('group-message-from-client', payload);
+
+        if (messageInfo.group !== null) {
+            clientIO.emit('group-message-from-client', payload);
+        } else {
+            clientIO.emit('direct-message-from-client', payload);
+        }
     }
 });
 
 clientIO.on('group-message-from-server', (data) => {
+    addMessage(data.message, data.sender);
+})
+
+clientIO.on('direct-message-from-server', (data) => {
     addMessage(data.message, data.sender);
 })
 
