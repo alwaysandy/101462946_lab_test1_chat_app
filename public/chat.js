@@ -1,6 +1,8 @@
 const clientIO = io();
 
 const username = localStorage.getItem("username");
+let isTyping = false;
+
 if (!username) {
     window.location.href = "/login.html";
 } else {
@@ -103,6 +105,7 @@ const addMessage = (message, sender) => {
 }
 
 $("#send-message").click(() => {
+    clientIO.emit('isnt-typing-from-client', messageInfo);
     const messageBox = $("#message");
     const message = messageBox.val();
     messageBox.val("");
@@ -130,10 +133,43 @@ clientIO.on('direct-message-from-server', (data) => {
     addMessage(data.message, data.sender);
 })
 
+clientIO.on('is-typing-from-server', (data) => {
+    const isTypingBox = $('#typing-indicators');
+    isTypingBox.empty();
+    for (let user of data) {
+        if (user === messageInfo.username) {
+            continue;
+        }
+        $('<small>')
+            .css('font-style', 'italic')
+            .text(user + " is typing")
+            .appendTo(isTypingBox);
+    }
+});
+
 const logout = () => {
     localStorage.clear();
     window.location.href = "/login.html";
 }
+
+$("#leave-room").click(() => {
+    if (messageInfo.group !== null) {
+        clientIO.emit('leave-group', messageInfo.group);
+    }
+    $('#sending-to').text("Select a Chat");
+    messageInfo.recipient = null;
+    messageInfo.group = null;
+    const chatBox = $("#chat-box");
+    chatBox.empty();
+});
+
+$("#message").on('input', (e) => {
+    if (e.target.value == "") {
+        clientIO.emit('isnt-typing-from-client', messageInfo);
+    } else {
+        clientIO.emit('is-typing-from-client', messageInfo);
+    }
+})
 
 $("#logout").click(() => {
     localStorage.clear();

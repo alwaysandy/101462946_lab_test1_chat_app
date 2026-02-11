@@ -38,6 +38,7 @@ const server = app.listen(3001, () => {
 const io = iosocket(server);
 const users = []
 const usernames = {};
+const isTyping = [];
 UserModel.find({}).select('username').then((users) => {
     users.map((user) => {
         usernames[user.username] = null;
@@ -80,8 +81,39 @@ io.on('connection', (socket) => {
         await toPersist.save(toPersist);
     })
 
+    socket.on('is-typing-from-client', async (data) => {
+        if (isTyping.includes(data.username)) {
+            return;
+        }
+
+        isTyping.push(data.username);
+        if (data.group) {
+            io.to(data.group).emit('is-typing-from-server', isTyping);
+        } else if (data.recipient) {
+            if (usernames[data.recipient] !== null) {
+                const recipient = usernames[data.recipient];
+                io.to(recipient).emit('is-typing-from-server', isTyping);
+            }
+        }
+    })
+
+    socket.on('isnt-typing-from-client', async (data) => {
+        const index = isTyping.indexOf(data.username);
+        if (index !== -1) {
+            isTyping.splice(index, 1);
+        }
+
+        if (data.group) {
+            io.to(data.group).emit('is-typing-from-server', isTyping);
+        } else if (data.recipient) {
+            if (usernames[data.recipient] !== null) {
+                const recipient = usernames[data.recipient];
+                io.to(recipient).emit('is-typing-from-server', []);
+            }
+        }
+    })
+
     socket.on('disconnect', () => {
-        const index = users.indexOf(socket.id);
         for (username in usernames) {
             if (usernames[username] === socket.id) {
                 usernames[username] = null;
@@ -89,6 +121,7 @@ io.on('connection', (socket) => {
             }
         }
 
+        const index = users.indexOf(socket.id);
         if (index !== -1) {
             users.splice(index, 1);
         }
