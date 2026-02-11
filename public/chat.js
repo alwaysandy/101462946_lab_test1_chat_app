@@ -135,6 +135,7 @@ const logout = () => {
     window.location.href = "/login.html";
 }
 
-const buttonAck = (e) => {
-    console.log(e);
-}
+$("#logout").click(() => {
+    localStorage.clear();
+    window.location.href = "/login.html";
+});
