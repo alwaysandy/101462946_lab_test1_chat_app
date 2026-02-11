@@ -147,11 +147,6 @@ clientIO.on('is-typing-from-server', (data) => {
     }
 });
 
-const logout = () => {
-    localStorage.clear();
-    window.location.href = "/login.html";
-}
-
 $("#leave-room").click(() => {
     if (messageInfo.group !== null) {
         clientIO.emit('leave-group', messageInfo.group);
@@ -174,4 +169,5 @@ $("#message").on('input', (e) => {
 $("#logout").click(() => {
     localStorage.clear();
     window.location.href = "/login.html";
+    messageInfo = {};
 });
